@@ -39,7 +39,7 @@ class ShopcartController extends Controller
             $cart->save();
         }
 
-        return back();
+        return redirect()->route('product')->with('status', 'Produk Berhasil Ditambahkan Ke Keranjang!');
     }
 
     public function updateqty($id){

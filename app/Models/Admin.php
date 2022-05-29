@@ -6,7 +6,6 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Sanctum\HasApiTokens;
 
 class Admin extends Authenticatable
@@ -39,7 +38,7 @@ class Admin extends Authenticatable
         'remember_token',
     ];
 
-    use HasFactory,Notifiable,softDeletes;
+    use HasFactory,Notifiable;
 
     public function responses(){
         return $this->hasMany(Response::class);

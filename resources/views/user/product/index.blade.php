@@ -241,8 +241,9 @@
                                             <form method="POST" id="cart{{$item->id}}" action="{{ url('cart/'.$item->id) }}">
                                             @csrf
                                             </form>
-                                            <form method="POST" id="transaksi{{$item->id}}" action="{{ url('transaksi/'.$item->id) }}">
+                                            <form method="POST" id="transaksi{{$item->id}}" action="{{ route('transaction') }}">
                                             @csrf
+                                            <input type="text" name="products" value="{{ $item->id }}" hidden>
                                             </form>
                                             <ul class="product__hover">
                                                 <li><a href="{{ asset('product-image/'.$item->image->image_name)}}" class="image-popup"><span class="arrow_expand"></span></a></li>
@@ -259,8 +260,9 @@
                                             <form method="POST" id="cart{{$item->id}}" action="{{ url('cart/'.$item->id) }}">
                                             @csrf
                                             </form>
-                                            <form method="POST" id="transaksi{{$item->id}}" action="{{ url('transaksi/'.$item->id) }}">
+                                            <form method="POST" id="transaksi{{$item->id}}" action="{{ route('transaction') }}">
                                             @csrf
+                                            <input type="text" name="products" value="{{ $item->id }}" hidden>
                                             </form>
                                                 <li><a href="{{ asset('img/shop/shop-1.jpg') }}" class="image-popup"><span class="arrow_expand"></span></a></li>
                                                 <li><a onclick="document.getElementById('cart{{$item->id}}').submit()"><span class="icon_cart_alt"></span></a></li>
@@ -271,13 +273,11 @@
                                 <div class="product__item__text">
                                     <h6><a href="{{ url('user/product/'.$item->id) }}">{{ $item->product_name }}</a></h6>
                                     <div class="rating">
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star"></i>
-                                        <i class="fa fa-star"></i>
+                                        @for ($i = 1; $i <= $item->product_rate; $i++ )
+                                            <i class="fa fa-star"></i>
+                                        @endfor
                                     </div>
-                                    <div class="product__price">Rp.{{number_format($item->price)}}</div>
+                                    <div class="product__price">Rp.{{$item->price}}</div>
                                 </div>
                             </div>
                         </div>

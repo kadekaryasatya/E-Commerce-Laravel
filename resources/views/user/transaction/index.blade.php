@@ -1,7 +1,7 @@
 @extends('template.user')
 
 @section('section')
-    
+
     <!-- Breadcrumb Begin -->
     <div class="breadcrumb-option">
         <div class="container">
@@ -30,7 +30,7 @@
             @php
                     $products = [];
                     if(isset($product)){
-                        $products = [["product"=>$product->id,"qty"=>$qty,"price"=>$product->price]];
+                        $products = [["product"=>$product->id,"qty"=>$product->qty,"price"=>$product->price]];
                     }else {
                         foreach($carts as $cart){
                             array_push($products,["product"=>$cart->product->id,"qty"=>$cart->qty,"price"=>$cart->product->price]);
@@ -50,13 +50,13 @@
                     <div class="col-lg-8">
                         <h5>Billing detail</h5>
                         <div class="row">
-                            
+
                             <div class="col-lg-12">
-                                
+
                                 <div class="checkout__form__input">
                                     <p>Address <span>*</span></p>
                                     <input name="adress" type="text" placeholder="Street Address">
-                            
+
                                 </div>
                                 <div class="checkout__form__input">
                                     <p>Town/City <span>*</span></p>
@@ -91,16 +91,16 @@
                                 </div>
                             </div>
                             <div class="col-lg-6 col-md-6 col-sm-6">
-                                <div class="checkout__form__input" >
-                                    <p> <span>*</span></p>
-                                    <input type="hidden">
+                                <div class="checkout__form__input">
+                                    <p>Email <span>*</span></p>
+                                    <input type="text">
                                 </div>
                             </div>
                             <div class="col-lg-12">
                                 <div class="checkout__form__checkbox">
                                     <label for="acc">
                                         Create an acount?
-                                        <input type="hidden" id="acc">
+                                        <input type="checkbox" id="acc">
                                         <span class="checkmark"></span>
                                     </label>
                                     <p>Create am acount by entering the information below. If you are a returing
@@ -134,13 +134,26 @@
                                             <span class="top__text">Product</span>
                                             <span class="top__text__right">Total</span>
                                         </li>
-                                       @forelse ($carts as $cart)
-                                       <li>{{$cart->product->product_name}} x {{$cart->qty}} <span>Rp.{{number_format($cart->product->price*$cart->qty)}}</span></li>
-                                       @empty
-                                           
-                                       @endforelse
+                                    @if (isset($carts))
 
-                                       
+                                       @forelse ($carts as $cart)
+                                       @if ($cart->discount)
+                                        <li>{{$cart->product->product_name}} x {{$cart->qty}} <span>Rp.{{number_format($cart->discount*$cart->qty)}}</span></li>
+                                       @else
+                                       <li>{{$cart->product->product_name}} x {{$cart->qty}} <span>Rp.{{number_format($cart->product->price*$cart->qty)}}</span></li>
+                                       @endif
+                                       @empty
+                                        <span>Test</span>
+                                       @endforelse
+                                    @else
+                                    @if ($product->discount)
+                                    <li>{{$product->product_name}} x {{$product->qty}} <span>Rp.{{number_format($product->discount*$product->qty)}}</span></li>
+                                    @else
+                                    <li>{{$product->product_name}} x {{$product->qty}} <span>Rp.{{number_format($product->price*$product->qty)}}</span></li>
+                                       @endif
+                                    @endif
+
+
                                         {{-- <li>01. Chain buck bag <span>$ 300.0</span></li>
                                         <li>02. Zip-pockets pebbled<br /> tote briefcase <span>$ 170.0</span></li>
                                         <li>03. Black jean <span>$ 170.0</span></li>
@@ -154,7 +167,7 @@
                                         <li>Total <span> Rp.<span id="total_fiks">{{number_format($total)}}</span></span></li>
                                     </ul>
                                 </div>
-                                
+
                                 <button type="submit" class="site-btn">Place oder</button>
                             </div>
                         </div>
@@ -198,7 +211,7 @@
 
                 $("#province").val(destination_detail.province)
                 $("#regency-form").val(destination_detail.city_name)
-                
+
                 ongkir.text(cost.toLocaleString('en-US'))
                 shipping.val(cost)
                 total.val(total_harga_termasuk_ongkir)

@@ -81,17 +81,21 @@
                     <div class="product__details__text">
                         <h3>{{$products->product_name}} <span>Brand: SKMEIMore Men Watches from SKMEI</span></h3>
                         <div class="rating">
-                            {{$products->rating}}
-                            <i class="fa fa-star"></i>
+                            @for ($i = 1; $i <= $products->product_rate; $i++ )
+                                <i class="fa fa-star"></i>
+                            @endfor
                             <span>( 138 reviews )</span>
                         </div>
                         <div class="product__details__price">{{ $products->price }} <span>Rp. 200.000</span></div>
                         <p>{{ $products->description }}</p>
+                        <form method="POST" action="{{ url('transaction/'.$products->id) }}">
+                        @csrf
+                        <div class="form-group">
                         <div class="product__details__button">
                             <div class="quantity">
                                 <span>Quantity:</span>
                                 <div class="pro-qty">
-                                    <input type="text" value="1">
+                                    <input type="text" name="qty" value="" placeholder="1">
                                 </div>
                             </div>
                             <form method="POST" id="cart{{$products->id}}" action="{{ url('cart/'.$products->id) }}">

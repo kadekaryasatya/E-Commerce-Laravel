@@ -59,7 +59,7 @@ class AdminController extends Controller
             'name' => $request->name,
             'phone' => $request->phone,
             ]);
-             return redirect('admin/list')->with('status', 'Data Admin Berhasil Teredit!');
+             return redirect('admin/list')->with('success', 'Berhasil Mengedit Data');;
     }
     public function delete($id)
     {

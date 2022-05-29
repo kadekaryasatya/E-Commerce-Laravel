@@ -44,7 +44,7 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="cart__price">Rp. {{number_format($item->product->price)}}</td>
+                                    <td class="cart__price">Rp. {{$item->product->price}}</td>
                                     <td class="cart__quantity">
                                         <div class="pro-qty" id="{{$item->id}}">
                                             <input class="qtq" id="{{$item->id}}" type="text" value="{{$item->qty}}">
@@ -66,12 +66,12 @@
             <div class="row">
                 <div class="col-lg-6 col-md-6 col-sm-6">
                     <div class="cart__btn">
-                        <a href="{{ route('product') }}">Continue Shopping</a>
+                        <a href="#">Continue Shopping</a>
                     </div>
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-6">
                     <div class="cart__btn update__btn">
-                        <a href="{{ route('shopcart') }}"><span class="icon_loading"></span> Update cart</a>
+                        <a href="#"><span class="icon_loading"></span> Update cart</a>
                     </div>
                 </div>
             </div>

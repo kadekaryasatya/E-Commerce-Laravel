@@ -9,8 +9,12 @@ use App\Models\Transaction;
 use Illuminate\Http\Request;
 use App\Models\Transaction_detail;
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Notifications\User_notification;
+use Carbon\Carbon;
+use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\User\TransactionController;
+use SebastianBergmann\CodeCoverage\Util\Percentage;
 
 class TransactionController extends Controller
 {
@@ -23,7 +27,7 @@ class TransactionController extends Controller
 
     public function get_city(){
         $curl = curl_init();
-        
+
         curl_setopt_array($curl, array(
           CURLOPT_URL => "https://api.rajaongkir.com/starter/city",
           CURLOPT_RETURNTRANSFER => true,
@@ -36,12 +40,12 @@ class TransactionController extends Controller
             "key: 14a43317bcd969c1294ea22c6f086938"
           ),
         ));
-        
+
         $response = curl_exec($curl);
         $err = curl_error($curl);
-        
+
         curl_close($curl);
-        
+
         if ($err) {
           return "cURL Error #:" . $err;
         } else {
@@ -72,12 +76,12 @@ class TransactionController extends Controller
             "key: 14a43317bcd969c1294ea22c6f086938"
           ),
         ));
-        
+
         $response = curl_exec($curl);
         $err = curl_error($curl);
-        
+
         curl_close($curl);
-        
+
         if ($err) {
           return "cURL Error #:" . $err;
         } else {
@@ -87,7 +91,7 @@ class TransactionController extends Controller
 
 
     public function index(){
-        
+
         $city = json_decode(TransactionController::get_city())->rajaongkir->results;
         $couriers = Courier::all();
         if(request()->has("items")){
@@ -99,26 +103,50 @@ class TransactionController extends Controller
                 $cart = Cart::find($item);
                 $cart->status = "checkedout";
                 $cart->save();
+                $discount = $cart->product->discounts()
+                    ->where('start','<=',Carbon::now())
+                    ->where('end','>=',Carbon::now())
+                    ->get();
+                if(count($discount)>0){
+                    $percentage = $discount->first()->percentage;
+                    $final_price = $cart->product->price - ($percentage/100*$cart->product->price);
+                    $total += $cart->qty * $final_price;
+                    $cart->discount=$final_price;
+                }else{
+                    $total += $cart->qty * $cart->product->price;
+                }
                 array_push($carts,$cart);
-                $total += $cart->qty * $cart->product->price;
                 $weight += $cart->product->weight;
             }
-          
+
             return view('user.transaction.index',compact('carts','total','city','weight','couriers'));
         }else {
             $product = Product::find(request()->products);
-            $total = $product->price;
+            $total = 0;
             $weight = $product->weight;
+            $product->qty = 1;
+            $discount = $product->discounts()
+                    ->where('start','<=',Carbon::now())
+                    ->where('end','>=',Carbon::now())
+                    ->get();
+                if(count($discount)>0){
+                    $percentage = $discount->first()->percentage;
+                    $final_price = $product->price - ($percentage/100*$product->price);
+                    $total += $product->qty * $final_price;
+                    $product->discount=$final_price;
+                }else{
+                    $total += $product->qty * $product->price;
+                }
 
             return view('user.transaction.index',compact('product','total','city','weight','couriers'));
         }
 
 
-        
+
     }
 
 
-    public function purchase_save(){    
+    public function purchase_save(){
 
       $transaction = Transaction::create([
           'address'=>request()->adress,
@@ -134,26 +162,45 @@ class TransactionController extends Controller
           'proof_of_payment'=>'//'
       ]);
       $data = request()->products;
-    
+
       if(count($data)>1){
           foreach($data as $item){
-              
+            $final_price = $item['price'];
+            $percentage = 0.0;
+            $discount= Product::find($item['product'])->discounts()
+                ->where('start', '<=', Carbon::now())
+                ->where('end', '>=', Carbon::now())
+                ->get();
+                 if(count($discount)>0){
+                    $percentage = $discount->first()->percentage;
+                    $final_price = $item['price'] - ($percentage/100*$item['price']);
+                }
               Transaction_detail::create([
                   'transaction_id'=>$transaction->id,
                   'product_id'=>$item["product"],
                   'qty'=>$item["qty"],
                   'discount'=>0,
-                  'selling_price'=>$item["price"]
+                  'selling_price'=>$final_price
               ]);
           }
       }else {
-          
+          $final_price = $data[0]['price'];
+            $percentage = 0.0;
+            $discount = Product::find($data[0]['product'])->discounts()
+                ->where('start','<=',Carbon::now())
+                ->where('end','>=',Carbon::now())
+                ->get();
+            if(count($discount)>0){
+                $percentage = $discount->first()->percentage;
+                $final_price = $data[0]['price'] - ($percentage/100*$data[0]['price']);
+            }
+
           Transaction_detail::create([
               'transaction_id'=>$transaction->id,
               'product_id'=>$data[0]["product"],
               'qty'=>$data[0]["qty"],
               'discount'=>0,
-              'selling_price'=>$data[0]["price"]
+              'selling_price'=>$final_price
           ]);
 
       }
@@ -183,6 +230,52 @@ class TransactionController extends Controller
     public function updateqty($id){
 
     }
+
+    public function list()
+    {
+        $expired_transaction = Transaction::where('timeout','<=',Carbon::now())->where('status','unverified');
+        foreach($expired_transaction as $transaction){
+            $transaction->status = "Expired";
+            $transaction->save();
+        }
+        $transactions = Transaction::where('user_id', '=', Auth::user()->id)->get();
+        foreach ($transactions as $transaction) {
+            $transaction->detail = $transaction->details;
+        }
+        return view('user.transaction.list', compact('transactions'));
+
+    }
+
+
+    public function proof($id)
+    {
+        $transaction = Transaction::find($id);
+        return view('user.transaction.proof', compact('transaction'));
+    }
+
+    public function proofadd(Request $request, $id)
+    {
+        $user = User::where('id', '=', Auth::user()->id)->get()->first();
+
+        $request->validate([
+            'proof' => 'required',
+        ]);
+
+        $transaction = Transaction::where('id', $id)->first();
+
+        $proof = $request->file('proof');
+        $path = 'proof-transaction/';
+        $nama_file = $proof->getClientOriginalName();
+        $proof->move($path,$nama_file);
+        $transaction->proof_of_payment = $nama_file;
+        $transaction->status = 'verified';
+        $transaction->save();
+
+        $user->notify(new User_notification ('Bukti Bayar Terkirim'));
+
+        return redirect()->route('list');
+    }
+
 
 
 }

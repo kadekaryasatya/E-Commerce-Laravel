@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Discount extends Model
 {
     protected $guarded = ['id'];
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     public function product(){
         return $this->belongsTo(Product::class);

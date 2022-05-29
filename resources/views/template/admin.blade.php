@@ -65,11 +65,9 @@ Coded by www.creative-tim.com
       </div>
       <div class="sidebar-wrapper">
         <ul class="nav">
-          
-          <li>
+          <li class="">
             <a href="{{ route('dashboard')}}">
               <i class="nc-icon nc-bank"></i>
-              
               <p>Dashboard</p>
             </a>
           </li>
@@ -97,12 +95,12 @@ Coded by www.creative-tim.com
               <p>Courier</p>
             </a>
           </li>
-          {{-- <li>
-            <a href="./tables.html">
+          <li>
+            <a href="{{ route('listdiscount') }}">
               <i class="nc-icon nc-money-coins"></i>
               <p>Discount</p>
             </a>
-          </li> --}}
+          </li>
         </ul>
       </div>
     </div>
@@ -209,6 +207,8 @@ Coded by www.creative-tim.com
   <script src="{{ asset('assets/js/paper-dashboard.min.js') }}?v=2.0.1" type="text/javascript"></script><!-- Paper Dashboard DEMO methods, don't include it in your project! -->
   <script src="{{ asset('assets/demo/demo.js')}}"></script>
   @livewireScripts
+  @include('sweetalert::alert')
+
 </body>
 
 </html>

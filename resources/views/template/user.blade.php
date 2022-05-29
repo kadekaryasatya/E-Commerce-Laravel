@@ -29,6 +29,32 @@
     <link rel="stylesheet" href="{{ asset('css/owl.carousel.min.css')}}" type="text/css">
     <link rel="stylesheet" href="{{ asset('css/slicknav.min.css')}}" type="text/css">
     <link rel="stylesheet" href="{{ asset('css/style.css')}}" type="text/css">
+    <style>
+        .notification {
+  background-color: #555;
+  color: white;
+  text-decoration: none;
+  padding: 15px 26px;
+  position: relative;
+  display: inline-block;
+  border-radius: 2px;
+}
+
+.notification:hover {
+  background: red;
+}
+
+.notification .badge {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  padding: 5px 10px;
+  border-radius: 50%;
+  background: red;
+  color: white;
+}
+    </style>
+
 </head>
     <!-- Page Preloder -->
     <div id="preloder">
@@ -74,8 +100,16 @@
                             <li class="active"><a href="{{url('home')}}">Home</a></li>
                             <li><a href="{{ route('product') }}">Shop</a></li>
                             <li><a href="{{ route('shopcart') }}">Cart</a></li>
-                            <li><a href="#">Blog Details</a></li>
+                            <li><a href="{{ route('list') }}">Transaction</a></li>
                             <li><a href="">Contact</a></li>
+                            {{-- @if (count(auth()->user()->unreadNotifications)>0) --}}
+                            <li><a href="#" class="notification">
+                            <span class="fa fa-bell"></span>
+                            {{-- <span class="badge">{{ count(auth()->user()->unreadNotifications) }}</span> --}}
+                            </a>
+                            </li>
+                            {{-- @else()
+                            @endif --}}
                             <li class="btn btn-secondary">
                                 <div>
                                     @auth
@@ -264,6 +298,7 @@
 <script src="{{ asset('js/owl.carousel.min.js')}}"></script>
 <script src="{{ asset('js/jquery.nicescroll.min.js')}}"></script>
 <script src="{{ asset('js/main.js')}}"></script>
+@include('sweetalert::alert')
 </body>
 
 </html>

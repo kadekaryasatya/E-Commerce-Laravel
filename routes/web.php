@@ -12,6 +12,8 @@ use App\Http\Controllers\User\DashboardController;
 use App\Http\Controllers\Admin\LoginAdminController;
 use App\Http\Controllers\User\TransactionController;
 use App\Http\Controllers\Admin\DetailCategoryController;
+use App\Http\Controllers\Admin\DiscountController;
+use App\Models\Transaction;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,12 +49,14 @@ Route::patch('cart/update/{id}',[ShopcartController::class, 'updateqty']);
 Route::delete('cart/delete/{id}', [ShopcartController::class, 'delete']);
 
 //Route Transaction
+Route::get('user/transaction', [TransactionController::class, 'list'])->name('list');
 Route::post('user/purchase', [TransactionController::class, 'index'])->name('transaction');
 Route::post('user/purchase/save', [TransactionController::class, 'purchase_save'])->name('purchase_save');
+Route::get('user/proof/{id}',[TransactionController::class, 'proof']);
+Route::patch('user/proof/{id}', [TransactionController::class, 'proofadd']);
 //Route::post('cart/{id}',[ShopcartController::class, 'addprocess']);
 //Route::patch('cart/update/{id}',[ShopcartController::class, 'updateqty']);
-// Route::delete('cart/delete/{id}', [ShopcartController::class, 'delete']);
-
+//Route::delete('cart/delete/{id}', [ShopcartController::class, 'delete']);
 
 //Shiping
 Route::post('user/shippingcost', [TransactionController::class, 'get_cost'])->name('get_cost');
@@ -107,5 +111,13 @@ Route::post('admin/courier', [CourierController::class, 'addprocess']);
 Route::get('admin/courier/edit/{id}', [CourierController::class, 'edit']);
 Route::patch('admin/courier/editprocess/{id}', [CourierController::class, 'editprocess']);
 Route::delete('admin/courier/{id}', [CourierController::class, 'delete']);
+
+//Discount Route
+Route::get('admin/discount', [DiscountController::class, 'index'])->name('listdiscount');
+Route::get('admin/discount/add', [DiscountController::class, 'add'])->name('adddiscount');
+Route::post('admin/discount', [DiscountController::class, 'addprocess']);
+Route::get('admin/discount/edit/{id}', [DiscountController::class, 'edit']);
+Route::patch('admin/discount/editprocess/{id}', [DiscountController::class, 'editprocess']);
+Route::delete('admin/discount/{id}', [DiscountController::class, 'delete']);
 
 });
